@@ -51,7 +51,7 @@ def export(checkpoint: Path, out_path: Path | None = None, image_size: int = 224
     max_diff = float(np.abs(torch_out - onnx_out).max())
     assert max_diff < 1e-3, f"ONNX output diverges from PyTorch by {max_diff}"
 
-    print(f"Exported {arch} -> {out_path} (max |Δ| vs torch = {max_diff:.2e})")
+    print(f"Exported {arch} -> {out_path} (max abs diff vs torch = {max_diff:.2e})")
     return out_path
 
 

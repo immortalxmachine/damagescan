@@ -129,12 +129,12 @@ def train(cfg: TrainConfig, data_dir: Path = PROCESSED_DIR, out_dir: Path = MODE
             best_val_f1 = val_f1
             epochs_without_gain = 0
             save_checkpoint(model, cfg.arch, tuple(class_names), ckpt_path)
-            print(f"  ↳ new best (val f1 {val_f1:.3f}) saved to {ckpt_path.name}")
+            print(f"  -> new best (val f1 {val_f1:.3f}) saved to {ckpt_path.name}")
         else:
             # Early stopping: bail out once val F1 stops improving.
             epochs_without_gain += 1
             if epochs_without_gain >= cfg.patience:
-                print(f"  ↳ early stopping after {cfg.patience} epochs without gain")
+                print(f"  -> early stopping after {cfg.patience} epochs without gain")
                 break
 
     history_path = out_dir / f"{cfg.arch}_history.json"
@@ -151,6 +151,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--batch-size", type=int, default=cfg.batch_size)
     p.add_argument("--lr", type=float, default=cfg.lr)
     p.add_argument("--patience", type=int, default=cfg.patience)
+    p.add_argument("--num-workers", type=int, default=cfg.num_workers)
     p.add_argument("--data-dir", type=Path, default=PROCESSED_DIR)
     p.add_argument("--out-dir", type=Path, default=MODELS_DIR)
     p.add_argument("--device", default=cfg.device)
@@ -165,6 +166,7 @@ def main() -> None:
         batch_size=args.batch_size,
         lr=args.lr,
         patience=args.patience,
+        num_workers=args.num_workers,
         device=args.device,
     )
     train(cfg, data_dir=args.data_dir, out_dir=args.out_dir)
