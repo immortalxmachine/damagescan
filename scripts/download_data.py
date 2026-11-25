@@ -30,6 +30,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from damagescan.config import RAW_DIR  # noqa: E402
 
+# The dataset referenced by the project brief: synthetic (Blender-rendered) RGB
+# images of intact vs damaged packages, two views per package. License: GPL-2.
+DEFAULT_KAGGLE_DATASET = "christianvorhemus/industrial-quality-control-of-packages"
+
 
 def download_kaggle(dataset: str, out_dir: Path) -> None:
     """Download and unzip a Kaggle dataset using the official kaggle client."""
@@ -63,7 +67,9 @@ def main() -> None:
     )
     p.add_argument("--source", choices=["kaggle", "synthetic"], default="kaggle")
     p.add_argument(
-        "--dataset", help="Kaggle slug 'owner/dataset-name' (required for --source kaggle)"
+        "--dataset",
+        default=DEFAULT_KAGGLE_DATASET,
+        help=f"Kaggle slug 'owner/dataset-name' (default: {DEFAULT_KAGGLE_DATASET})",
     )
     p.add_argument("--out-dir", type=Path, default=RAW_DIR)
     p.add_argument("--n-per-class", type=int, default=80, help="synthetic images per class")

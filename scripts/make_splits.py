@@ -48,8 +48,16 @@ def make_splits(
     dst: Path = PROCESSED_DIR,
     ratios: tuple[float, float, float] = (0.7, 0.15, 0.15),
     seed: int = 42,
+    name_filter: str | None = None,
 ) -> dict:
-    """Copy images from ``src`` into stratified splits under ``dst``."""
+    """Copy images from ``src`` into stratified splits under ``dst``.
+
+    ``name_filter`` keeps only images whose path (relative to the class folder)
+    contains the given substring. For the Kaggle packages dataset we pass
+    ``"top"`` to use only the top-view image of each package: that gives exactly
+    one image per package, so no two views of the same package can land in
+    different splits (which would leak information from train into test).
+    """
     assert abs(sum(ratios) - 1.0) < 1e-6, "ratios must sum to 1.0"
     class_dirs = find_class_dirs(src)
     if not class_dirs:
@@ -64,6 +72,8 @@ def make_splits(
     for class_dir in class_dirs:
         cls = class_dir.name
         files = [f for f in class_dir.rglob("*") if f.suffix.lower() in IMAGE_EXTS]
+        if name_filter:
+            files = [f for f in files if name_filter in str(f.relative_to(class_dir))]
         train, val, test = split_class(files, ratios, rng)
         counts[cls] = {"train": len(train), "val": len(val), "test": len(test), "total": len(files)}
         for split_name, split_files in (("train", train), ("val", val), ("test", test)):
@@ -88,8 +98,13 @@ def main() -> None:
     p.add_argument("--src", type=Path, default=RAW_DIR)
     p.add_argument("--dst", type=Path, default=PROCESSED_DIR)
     p.add_argument("--seed", type=int, default=42)
+    p.add_argument(
+        "--name-filter",
+        default=None,
+        help="keep only images whose relative path contains this substring (e.g. 'top')",
+    )
     args = p.parse_args()
-    make_splits(args.src, args.dst, seed=args.seed)
+    make_splits(args.src, args.dst, seed=args.seed, name_filter=args.name_filter)
 
 
 if __name__ == "__main__":
