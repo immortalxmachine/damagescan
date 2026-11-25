@@ -1,0 +1,34 @@
+# Convenience install of everything (training + serving + demo + dev tools).
+# The package metadata in pyproject.toml is the source of truth; this file
+# mirrors it so `pip install -r requirements.txt` just works.
+#
+# GPU users: install the CUDA build of torch/torchvision FIRST, e.g.
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+# then `pip install -r requirements.txt` (it will keep the CUDA build).
+
+torch
+torchvision
+numpy
+pillow
+scikit-learn
+matplotlib
+onnx
+onnxruntime
+tqdm
+python-dotenv
+
+# Serving
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Demo
+gradio
+
+# Dataset download (needs a Kaggle API token)
+kaggle
+
+# Dev / test
+pytest
+httpx
+ruff

@@ -1,0 +1,33 @@
+# --- Data & models (never committed; use the download/train scripts) ---
+# reports/ IS committed: it holds the small confusion-matrix and Grad-CAM PNGs
+# the README displays. Only heavy data and model weights are ignored.
+data/
+models/
+*.pt
+*.pth
+*.onnx
+*.classes.json
+
+# --- Secrets ---
+.env
+.kaggle/
+kaggle.json
+
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

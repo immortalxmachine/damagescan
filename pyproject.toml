@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "damagescan"
+version = "0.1.0"
+description = "Parcel damage detection with PyTorch transfer learning, Grad-CAM, ONNX and FastAPI."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "torchvision",
+    "numpy",
+    "pillow",
+    "scikit-learn",
+    "matplotlib",
+    "onnx",
+    "tqdm",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+serve = ["fastapi", "uvicorn[standard]", "onnxruntime", "python-multipart"]
+demo = ["gradio"]
+kaggle = ["kaggle"]
+dev = [
+    "fastapi",
+    "uvicorn[standard]",
+    "onnxruntime",
+    "python-multipart",
+    "pytest",
+    "httpx",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+# src/ holds the installable package; "." makes the top-level app/ importable.
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# B008 flags function calls in argument defaults, but File(...)/Depends(...) in
+# the signature is the intended, documented FastAPI dependency-injection idiom.
+"app/api.py" = ["B008"]
