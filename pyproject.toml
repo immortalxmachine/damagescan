@@ -23,7 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 serve = ["fastapi", "uvicorn[standard]", "onnxruntime", "python-multipart"]
 demo = ["gradio"]
-kaggle = ["kaggle"]
+kaggle = ["kaggle", "six"]  # six is an undeclared runtime dep of the kaggle client
 dev = [
     "fastapi",
     "uvicorn[standard]",

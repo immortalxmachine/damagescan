@@ -27,6 +27,7 @@ gradio
 
 # Dataset download (needs a Kaggle API token)
 kaggle
+six  # undeclared runtime dependency of the kaggle client
 
 # Dev / test
 pytest
