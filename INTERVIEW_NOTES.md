@@ -121,8 +121,24 @@ trusting it.
 ### 17. Why two architectures (ResNet-18 vs MobileNetV3)?
 To show a size/accuracy trade-off. ResNet-18 is a strong, simple baseline;
 MobileNetV3-Small is much lighter and faster, suited to edge devices like a
-camera at a sorting belt. Both are built from the same `build_model` function
-and compared in `metrics.json`.
+camera at a sorting belt. Both are built from the same `build_model` function.
+**Real result (`metrics.json`):** ResNet-18 reached **93.3%** test accuracy
+(precision 1.00, recall 0.87 on damaged); MobileNetV3-small reached **70.0%**
+and was noticeably harder to train on only 200 images — it needed a higher
+learning rate (4e-4 vs 1e-4) and still trailed. The lighter model trading
+accuracy for size is exactly the kind of decision an interviewer wants to hear.
+
+### 17b. Tell me about a bug you debugged in this project. (very likely)
+The first real runs sat at ~50–57% accuracy — chance. I read the training
+curves and saw **train** F1 was also stuck at 0.5: the model wasn't even fitting
+the training set, so it was underfitting, not overfitting. Cause: a 1e-3
+learning rate with Adam was too high and disrupted the pretrained weights.
+Dropping to 1e-4 let train F1 climb to ~0.87 — but now **val** F1 lagged, i.e.
+overfitting. Two fixes closed the gap: (1) training on the **side view**, where
+the dent is clearly visible, instead of the top view where it is subtle, and
+(2) resizing the whole frame instead of cropping, since a crop could remove the
+small box — the only signal. I also enabled deterministic cuDNN so a lucky or
+unlucky run couldn't masquerade as a result. That took it to 93%.
 
 ### 18. How is the serving layer structured and tested?
 `app/api.py` exposes `GET /health` and `POST /predict`. The model is resolved
