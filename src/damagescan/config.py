@@ -49,10 +49,11 @@ class TrainConfig:
     arch: str = "resnet18"          # "resnet18" or "mobilenet_v3_small"
     image_size: int = 224
     batch_size: int = 32
-    epochs: int = 15
-    lr: float = 1e-3                # learning rate for the new classifier head
+    epochs: int = 25
+    lr: float = 1e-4                # 1e-4 fine-tunes a pretrained net stably; 1e-3 diverges
     weight_decay: float = 1e-4
-    patience: int = 4               # early-stopping patience (epochs w/o val gain)
+    patience: int = 6               # early-stopping patience (epochs w/o val gain)
+    freeze_backbone: bool = False   # train only the head (best on tiny datasets)
     num_workers: int = 2            # DataLoader worker processes
     seed: int = 42
     # Device is resolved at runtime; "auto" picks CUDA when available.

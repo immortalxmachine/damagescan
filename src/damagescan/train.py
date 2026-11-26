@@ -26,15 +26,23 @@ from tqdm import tqdm
 
 from .config import MODELS_DIR, PROCESSED_DIR, TrainConfig, resolve_device
 from .data import make_dataloaders
-from .model import SUPPORTED_ARCHS, build_model, save_checkpoint
+from .model import SUPPORTED_ARCHS, build_model, freeze_backbone, save_checkpoint
 
 
 def set_seed(seed: int) -> None:
-    """Seed Python, NumPy and torch so runs are reproducible."""
+    """Seed Python, NumPy and torch, and make cuDNN deterministic.
+
+    Without the cuDNN flags, GPU convolutions pick fast but non-deterministic
+    algorithms, so two runs with the same seed can diverge — on a small dataset
+    that is the difference between a model that learns and one that collapses to
+    a single class. Deterministic mode trades a little speed for reproducibility.
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def run_epoch(
@@ -93,8 +101,15 @@ def train(cfg: TrainConfig, data_dir: Path = PROCESSED_DIR, out_dir: Path = MODE
     print(f"Classes (label order): {class_names}")
 
     model = build_model(cfg.arch, num_classes=len(class_names), pretrained=True).to(device)
+    if cfg.freeze_backbone:
+        freeze_backbone(model, cfg.arch)
     criterion = nn.CrossEntropyLoss()
-    optimizer = Adam(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+    # Optimise only the parameters that require gradients (all of them for a full
+    # fine-tune, or just the head when the backbone is frozen).
+    trainable = [p for p in model.parameters() if p.requires_grad]
+    n_trainable = sum(p.numel() for p in trainable)
+    print(f"Trainable parameters: {n_trainable:,} (freeze_backbone={cfg.freeze_backbone})")
+    optimizer = Adam(trainable, lr=cfg.lr, weight_decay=cfg.weight_decay)
     # Halve the LR when validation loss plateaus, so late training fine-tunes.
     scheduler = ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=2)
 
@@ -152,6 +167,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--lr", type=float, default=cfg.lr)
     p.add_argument("--patience", type=int, default=cfg.patience)
     p.add_argument("--num-workers", type=int, default=cfg.num_workers)
+    p.add_argument("--freeze-backbone", action="store_true", help="train only the classifier head")
     p.add_argument("--data-dir", type=Path, default=PROCESSED_DIR)
     p.add_argument("--out-dir", type=Path, default=MODELS_DIR)
     p.add_argument("--device", default=cfg.device)
@@ -167,6 +183,7 @@ def main() -> None:
         lr=args.lr,
         patience=args.patience,
         num_workers=args.num_workers,
+        freeze_backbone=args.freeze_backbone,
         device=args.device,
     )
     train(cfg, data_dir=args.data_dir, out_dir=args.out_dir)

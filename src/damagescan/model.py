@@ -49,6 +49,27 @@ def build_model(arch: str = "resnet18", num_classes: int = 2, pretrained: bool =
     return model
 
 
+def freeze_backbone(model: nn.Module, arch: str) -> nn.Module:
+    """Freeze every layer except the classification head.
+
+    With only a few hundred training images, fine-tuning all ~11M ResNet
+    parameters overfits quickly. Freezing the ImageNet backbone and training
+    only the small head keeps the rich pretrained features fixed and learns far
+    fewer parameters, which generalises much better on tiny datasets.
+    """
+    for param in model.parameters():
+        param.requires_grad = False
+    if arch == "resnet18":
+        head = model.fc
+    elif arch == "mobilenet_v3_small":
+        head = model.classifier
+    else:
+        raise ValueError(f"Unknown arch '{arch}'. Supported: {SUPPORTED_ARCHS}")
+    for param in head.parameters():
+        param.requires_grad = True
+    return model
+
+
 def get_gradcam_target_layer(model: nn.Module, arch: str) -> nn.Module:
     """Return the last convolutional block to hook for Grad-CAM.
 

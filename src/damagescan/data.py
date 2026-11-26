@@ -24,22 +24,25 @@ def build_transforms(train: bool, image_size: int = 224) -> transforms.Compose:
     colour jitter) so the model sees varied views and overfits less. Evaluation
     is deterministic: resize then centre-crop, so results are reproducible.
     """
+    # The damaged region is a small part of a wide (16:9) frame, so we resize the
+    # WHOLE image to a square rather than cropping: a crop can remove the box and
+    # destroy the only signal. Training adds light, label-preserving augmentation
+    # (flips, small rotations, colour jitter); evaluation is a deterministic
+    # resize so train and eval see the image the same way.
     if train:
         return transforms.Compose(
             [
-                transforms.RandomResizedCrop(image_size, scale=(0.7, 1.0)),
+                transforms.Resize((image_size, image_size)),
                 transforms.RandomHorizontalFlip(),
-                transforms.RandomRotation(degrees=15),
+                transforms.RandomRotation(degrees=10),
                 transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
                 transforms.ToTensor(),
                 transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
             ]
         )
-    # Evaluation / inference: resize the short side then centre-crop to square.
     return transforms.Compose(
         [
-            transforms.Resize(int(image_size * 1.14)),  # 256 for a 224 crop
-            transforms.CenterCrop(image_size),
+            transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),
             transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
         ]
