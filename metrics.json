@@ -1,0 +1,46 @@
+{
+  "resnet18": {
+    "accuracy": 0.9333,
+    "precision_damaged": 1.0,
+    "recall_damaged": 0.8667,
+    "f1_damaged": 0.9286,
+    "confusion_matrix": [
+      [
+        13,
+        2
+      ],
+      [
+        0,
+        15
+      ]
+    ],
+    "class_names": [
+      "damaged",
+      "intact"
+    ],
+    "n_test": 30,
+    "confusion_matrix_image": "reports\\confusion_matrix_resnet18.png"
+  },
+  "mobilenet_v3_small": {
+    "accuracy": 0.7,
+    "precision_damaged": 0.6364,
+    "recall_damaged": 0.9333,
+    "f1_damaged": 0.7568,
+    "confusion_matrix": [
+      [
+        14,
+        1
+      ],
+      [
+        8,
+        7
+      ]
+    ],
+    "class_names": [
+      "damaged",
+      "intact"
+    ],
+    "n_test": 30,
+    "confusion_matrix_image": "reports\\confusion_matrix_mobilenet_v3_small.png"
+  }
+}
