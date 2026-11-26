@@ -1,0 +1,18 @@
+{
+  "title": "DamageScan",
+  "tagline": "Parcel damage detection with CNN transfer learning",
+  "category": "AI/ML",
+  "highlights": [
+    "End-to-end parcel-damage image classifier with PyTorch transfer learning (ResNet-18 vs MobileNetV3) — 93% test accuracy, 1.00 precision on damaged parcels.",
+    "FastAPI + ONNX /predict endpoint and a Gradio demo, with Grad-CAM heatmaps confirming the model attends to the parcel, not the background.",
+    "Reproducible pipeline: stratified splits, deterministic cuDNN, 7 automated tests, GitHub Actions CI (ruff + pytest), packaged in Docker."
+  ],
+  "metrics": [
+    { "label": "Test accuracy", "value": "93%" },
+    { "label": "Precision (damaged)", "value": "1.00" },
+    { "label": "Models compared", "value": "2" }
+  ],
+  "demo": null,
+  "featured": true,
+  "order": 2
+}
