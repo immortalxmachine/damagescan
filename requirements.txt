@@ -13,6 +13,7 @@ pillow
 scikit-learn
 matplotlib
 onnx
+onnxscript
 onnxruntime
 tqdm
 python-dotenv

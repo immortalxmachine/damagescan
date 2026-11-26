@@ -16,6 +16,7 @@ dependencies = [
     "scikit-learn",
     "matplotlib",
     "onnx",
+    "onnxscript",  # required by torch.onnx.export on newer torch (dynamo exporter)
     "tqdm",
     "python-dotenv",
 ]
